@@ -1,11 +1,4 @@
-<p align="center">
-  <a href="https://getartcraft.com/">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/brand/artcraft-logo-white.svg">
-      <img alt="ArtCraft" src="docs/brand/artcraft-logo.svg" width="200">
-    </picture>
-  </a>
-</p>
+<p align="center"><strong>Independent WordCraft fork</strong></p>
 
 <h1 align="center">WordCraft</h1>
 
@@ -373,19 +366,13 @@ do Russian, Portuguese, Czech, Italian, Croatian and Turkish spelling (how to in
 Polish hyphenation the TeX patterns by Hanna Kołodziejska, Bogusław Jackowski and Marek Ryćko (MIT
 option). The sample documents and templates are original text written for WordCraft.
 
-The ArtCraft name, wordmark and logos in [`docs/brand/`](docs/brand/) are trademarks of the
-ArtCraft Team and are not covered by this license. They may be used only unmodified, and only as
-part of this repository and WordCraft, under [`docs/brand/LICENSE-brand.txt`](docs/brand/LICENSE-brand.txt).
-Forks and modified versions must remove them.
+The original ArtCraft marks were removed from this modified fork. Original upstream provenance and license notices remain available in the repository history.
 
 <sub>Microsoft and Microsoft Word are trademarks of the Microsoft group of companies. Adobe, Photoshop, Illustrator, Premiere Pro, Lightroom, Acrobat, After Effects and InDesign are trademarks or registered trademarks of Adobe Inc. in the United States and/or other countries. WordCraft is an independent, open-source project and is not affiliated with, sponsored by or endorsed by Microsoft Corporation or Adobe Inc.; these names are used only to describe the workflows it is compatible with.</sub>
 
-<p align="center">
-  <a href="https://getartcraft.com/"><img alt="ArtCraft" src="docs/brand/artcraft-mark.svg" width="28"></a><br>
-  <sub>Made by the <a href="https://getartcraft.com/">ArtCraft</a> team and community.</sub>
-</p>
+<p align="center"><sub>Independent community fork based on the upstream WordCraft source. No affiliation or endorsement by the original ArtCraft team.</sub></p>
 
 
 ## Craft fork — Windows code-signing status
 
-This modified open-source fork is **not** a SignPath Foundation-approved or trusted signed release. We are evaluating its free OSS code-signing program; there is no current Craft edition publisher signature or approved installer. See the [public code-signing policy and release gates](docs/CODE_SIGNING_POLICY.md). Upstream logos/marks are separately licensed and must be replaced before releasing a modified product. Do not install an unsigned experimental MSI as a trusted release.
+This modified open-source fork is **not** a SignPath Foundation-approved or trusted signed release. We are evaluating its free OSS code-signing program; there is no current Craft edition publisher signature or approved installer. See the [public code-signing policy and release gates](docs/CODE_SIGNING_POLICY.md). The prohibited ArtCraft brand files are removed in this branch; screenshots, packaged binaries and marketing still require a separate brand review before release. Do not install an unsigned experimental MSI as a trusted release.
