@@ -24,7 +24,8 @@
 #>
 param(
   [ValidateSet('x64', 'x86', 'arm64')] [string] $Arch = 'x64',
-  [switch] $SkipBuild
+  [switch] $SkipBuild,
+  [switch] $RequireTrustedRelease
 )
 $ErrorActionPreference = 'Stop'
 $Root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -92,6 +93,10 @@ New-Item -ItemType Directory -Force -Path $Stage | Out-Null
 Copy-Item (Join-Path $Bin 'wordcraft.exe'), (Join-Path $Bin 'wordcraft-cli.exe') $Stage
 
 & (Join-Path $PSScriptRoot 'sign.ps1') (Join-Path $Stage 'wordcraft.exe') (Join-Path $Stage 'wordcraft-cli.exe')
+if ($RequireTrustedRelease) {
+  & (Join-Path $PSScriptRoot 'assert-trusted-release.ps1') -Paths @((Join-Path $Stage 'wordcraft.exe'), (Join-Path $Stage 'wordcraft-cli.exe'))
+  if ($LASTEXITCODE -ne 0) { throw 'Trusted Windows EXE/CLI gate did not pass' }
+}
 
 # ---- MSI ---------------------------------------------------------------------------------------
 # The installer's welcome page shows the license: build its RTF from LICENSE-MIT and LICENSE-APACHE
@@ -135,6 +140,10 @@ Invoke-Native 'wix build' {
 # wix writes its debug symbols (.wixpdb) next to the MSI; keep them out of the release assets.
 Remove-Item -Force -ErrorAction SilentlyContinue ([IO.Path]::ChangeExtension($Msi, '.wixpdb'))
 & (Join-Path $PSScriptRoot 'sign.ps1') $Msi
+if ($RequireTrustedRelease) {
+  & (Join-Path $PSScriptRoot 'assert-trusted-release.ps1') -Paths $Msi
+  if ($LASTEXITCODE -ne 0) { throw 'Trusted Windows MSI gate did not pass' }
+}
 
 # ---- portable zip ------------------------------------------------------------------------------
 $Portable = Join-Path $TargetDir "windows-package\wordcraft-$Version-windows-$Arch-portable"
