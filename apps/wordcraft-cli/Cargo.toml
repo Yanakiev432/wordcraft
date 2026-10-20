@@ -21,3 +21,6 @@ wordcraft-mcp = { workspace = true }
 wordcraft-zotero = { workspace = true }
 serde_json = { workspace = true }
 sys-locale = "0.3"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+craft-signing-core = { version = "=0.1.0", git = "https://github.com/Yanakiev432/craft-signing-core.git", rev = "b65a8751e8a8c1c362a3c157038a75ddccb5fa3e" }
