@@ -1977,33 +1977,6 @@ fn zotero(app: &mut WordApp, ui: &mut Ui) {
 }
 
 fn review(app: &mut WordApp, ui: &mut Ui) {
-    #[cfg(target_os = "windows")]
-    group(ui, "Digital signature", None, app, |ui, app| {
-        let ready = !app.session.dirty && app.session.path.is_some();
-        let button = ui
-            .add_enabled(ready, egui::Button::new("Sign document\nB-Trust").min_size(egui::vec2(100.0, 46.0)))
-            .on_disabled_hover_text("Save the document before signing")
-            .on_hover_text("Sign a saved DOCX with a certificate; creates a separate signed file");
-        if button.clicked() {
-            let path = app.session.path.as_ref().expect("enabled only for saved documents");
-            let script = std::path::PathBuf::from(std::env::var_os("LOCALAPPDATA").unwrap_or_default())
-                .join("Programs/CraftSigningExtension/craft_signing_interactive.ps1");
-            if !script.is_file() {
-                app.status("Craft Signing Extension is not installed".to_string());
-            } else {
-                match std::process::Command::new("pwsh.exe")
-                    .args(["-NoProfile", "-File"])
-                    .arg(script)
-                    .args(["-Mode", "Sign", "-InputPath"])
-                    .arg(path)
-                    .spawn()
-                {
-                    Ok(_) => app.status("Signing window launched; select certificate and confirm on token".to_string()),
-                    Err(e) => app.status(format!("Unable to launch signing: {e}")),
-                }
-            }
-        }
-    });
     group(ui, "Proofing", None, app, |ui, app| {
         big(ui, app, "spelling", "Spelling &\nGrammar", "review.spelling", json!({}), false);
         stack(ui, |ui| {
