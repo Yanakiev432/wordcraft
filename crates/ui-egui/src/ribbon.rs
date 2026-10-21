@@ -1985,7 +1985,7 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
             .on_disabled_hover_text("Save the document before signing")
             .clicked()
         {
-            app.status("Native OPC/XMLDSig signing is not yet available; document unchanged".to_owned());
+            { use craft_signing_core::SigningProvider; let result = craft_signing_core::windows_cng::WindowsCngProvider.list_identities(); app.status(match result { Ok(ids) => format!("Windows CNG found {} signing identities. Native OPC signing is not yet available.", ids.len()), Err(e) => format!("Windows CNG: {e}") }); }
         }
         if ui.add_enabled(app.session.path.is_some(), egui::Button::new("Verify\nsignature").min_size(egui::vec2(100.0, 46.0))).clicked() {
             app.status("Native OPC/XMLDSig verification is not yet available".to_owned());
