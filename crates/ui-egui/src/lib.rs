@@ -63,6 +63,8 @@ pub mod keys;
 pub mod keytips;
 pub mod mini_toolbar;
 pub mod objects;
+#[cfg(target_os = "windows")]
+pub mod office_sign_ui;
 pub mod options;
 pub mod panes;
 pub mod paste_picture;
@@ -505,6 +507,8 @@ pub struct WordApp {
     /// Content control frames, check boxes and lists on the page.
     pub controls: content_controls::ControlUi,
     pub dialog: Option<dialogs::Dialog>,
+    #[cfg(target_os = "windows")]
+    pub office_sign: office_sign_ui::OfficeSignUi,
     /// The Colors dialog (More Colors…), shown above any other dialog (#606).
     pub colors: Option<colors::ColorsDialog>,
     /// The Restrict Editing pane (#412).
@@ -659,6 +663,8 @@ impl WordApp {
             canvas: canvas::CanvasState::default(),
             controls: Default::default(),
             dialog: None,
+            #[cfg(target_os = "windows")]
+            office_sign: office_sign_ui::OfficeSignUi::default(),
             colors: None,
             restrict: Default::default(),
             status_msg: None,
@@ -2230,6 +2236,17 @@ impl WordApp {
             egui::CentralPanel::default().frame(egui::Frame::NONE.fill(t.canvas)).show(ui, |ui| {
                 canvas::show(self, ui);
             });
+        }
+        #[cfg(target_os = "windows")]
+        {
+            self.office_sign.draw(&ctx, self.canvas.viewport);
+            if let Some(office_sign_ui::Action::Sign) = self.office_sign.show(&ctx) {
+                let result = self.session.path.as_deref().ok_or("No saved document".to_string()).and_then(|p| self.office_sign.sign(p));
+                self.status(match result {
+                    Ok(message) => message,
+                    Err(error) => format!("Digital signature was not completed: {error}"),
+                });
+            }
         }
         content_controls::popup(self, &ctx);
         dialogs::show(self, &ctx);
