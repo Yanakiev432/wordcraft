@@ -1977,6 +1977,20 @@ fn zotero(app: &mut WordApp, ui: &mut Ui) {
 }
 
 fn review(app: &mut WordApp, ui: &mut Ui) {
+    // Native signing entry points. Do not spawn a shell or silently sign.
+    #[cfg(target_os = "windows")]
+    group(ui, "Digital signature", None, app, |ui, app| {
+        let ready = !app.session.dirty && app.session.path.is_some();
+        if ui.add_enabled(ready, egui::Button::new("Sign document\nB-Trust").min_size(egui::vec2(100.0, 46.0)))
+            .on_disabled_hover_text("Save the document before signing")
+            .clicked()
+        {
+            app.status("Native OPC/XMLDSig signing is not yet available; document unchanged".to_owned());
+        }
+        if ui.add_enabled(app.session.path.is_some(), egui::Button::new("Verify\nsignature").min_size(egui::vec2(100.0, 46.0))).clicked() {
+            app.status("Native OPC/XMLDSig verification is not yet available".to_owned());
+        }
+    });
     group(ui, "Proofing", None, app, |ui, app| {
         big(ui, app, "spelling", "Spelling &\nGrammar", "review.spelling", json!({}), false);
         stack(ui, |ui| {
