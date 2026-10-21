@@ -1978,11 +1978,17 @@ fn zotero(app: &mut WordApp, ui: &mut Ui) {
 
 fn review(app: &mut WordApp, ui: &mut Ui) {
     #[cfg(target_os = "windows")]
-    if ui.button("Sign with B-Trust" ).clicked() {
+    if ui.button("Sign with B-Trust").clicked() {
         if !app.session.dirty {
             if let Some(path) = app.session.path.as_ref() {
-                let script = std::path::PathBuf::from(std::env::var_os("LOCALAPPDATA" ).unwrap_or_default()).join("Programs/CraftSigningExtension/craft_signing_interactive.ps1" );
-                let _ = std::process::Command::new("pwsh.exe" ).args(["-NoProfile", "-File" ]).arg(script).args(["-Mode", "Sign", "-InputPath" ]).arg(path).spawn();
+                let script = std::path::PathBuf::from(std::env::var_os("LOCALAPPDATA").unwrap_or_default())
+                    .join("Programs/CraftSigningExtension/craft_signing_interactive.ps1");
+                let _ = std::process::Command::new("pwsh.exe")
+                    .args(["-NoProfile", "-File"])
+                    .arg(script)
+                    .args(["-Mode", "Sign", "-InputPath"])
+                    .arg(path)
+                    .spawn();
             }
         }
     }
