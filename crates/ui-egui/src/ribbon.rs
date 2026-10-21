@@ -1977,7 +1977,7 @@ fn zotero(app: &mut WordApp, ui: &mut Ui) {
 }
 
 fn review(app: &mut WordApp, ui: &mut Ui) {
-    #[cfg(target_os = "windows"))]
+    #[cfg(target_os = "windows")]
     if ui.button("Sign with B-Trust" ).clicked() {
         if !app.session.dirty {
             if let Some(path) = app.session.path.as_ref() {
