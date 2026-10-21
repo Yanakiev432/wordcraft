@@ -1977,20 +1977,8 @@ fn zotero(app: &mut WordApp, ui: &mut Ui) {
 }
 
 fn review(app: &mut WordApp, ui: &mut Ui) {
-    // Native signing entry points. Do not spawn a shell or silently sign.
-    #[cfg(target_os = "windows")]
-    group(ui, "Digital signature", None, app, |ui, app| {
-        let ready = !app.session.dirty && app.session.path.is_some();
-        if ui.add_enabled(ready, egui::Button::new("Sign document\nB-Trust").min_size(egui::vec2(100.0, 46.0)))
-            .on_disabled_hover_text("Save the document before signing")
-            .clicked()
-        {
-            { use craft_signing_core::SigningProvider; let result = craft_signing_core::windows_cng::WindowsCngProvider.list_identities(); app.status(match result { Ok(ids) => format!("Windows CNG found {} signing identities. Native OPC signing is not yet available.", ids.len()), Err(e) => format!("Windows CNG: {e}") }); }
-        }
-        if ui.add_enabled(app.session.path.is_some(), egui::Button::new("Verify\nsignature").min_size(egui::vec2(100.0, 46.0))).clicked() {
-            app.status("Native OPC/XMLDSig verification is not yet available".to_owned());
-        }
-    });
+    // Signing tools are intentionally placed at the far right of Review.
+    // This surface never launches a shell or changes the document silently.
     group(ui, "Proofing", None, app, |ui, app| {
         big(ui, app, "spelling", "Spelling &\nGrammar", "review.spelling", json!({}), false);
         stack(ui, |ui| {
@@ -2063,6 +2051,40 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
     group(ui, "Ink", None, app, |ui, app| {
         let hidden = app.session.view.hide_ink;
         big_toggle(ui, app, "hideInk", "Hide\nInk", "review.hideInk", hidden);
+    });
+    #[cfg(target_os = "windows")]
+    group(ui, "Digital signatures", None, app, |ui, app| {
+        let accent = ui.visuals().selection.bg_fill;
+        let neutral = ui.visuals().widgets.inactive.bg_fill;
+        let ready = !app.session.dirty && app.session.path.is_some();
+        let sign = egui::Button::new(egui::RichText::new("✒  Sign\n    B-Trust").strong().size(13.0))
+            .fill(accent.gamma_multiply(0.20))
+            .stroke(egui::Stroke::new(1.0, accent.gamma_multiply(0.65)))
+            .corner_radius(9.0)
+            .min_size(egui::vec2(108.0, 49.0));
+        if ui.add_enabled(ready, sign)
+            .on_disabled_hover_text("Save the document before signing")
+            .on_hover_text("Windows certificate discovery; signing not yet implemented")
+            .clicked()
+        {
+            use craft_signing_core::SigningProvider;
+            let result = craft_signing_core::windows_cng::WindowsCngProvider.list_identities();
+            app.status(match result {
+                Ok(ids) => format!("Windows CNG found {} signing identities. Native OPC signing is not yet available.", ids.len()),
+                Err(e) => format!("Windows CNG: {e}"),
+            });
+        }
+        let verify = egui::Button::new(egui::RichText::new("✓  Verify\n    signature").strong().size(13.0))
+            .fill(neutral)
+            .stroke(egui::Stroke::new(1.0, accent.gamma_multiply(0.45)))
+            .corner_radius(9.0)
+            .min_size(egui::vec2(108.0, 49.0));
+        if ui.add_enabled(app.session.path.is_some(), verify)
+            .on_hover_text("OPC/XMLDSig verification is not yet implemented")
+            .clicked()
+        {
+            app.status("Native OPC/XMLDSig verification is not yet available".to_owned());
+        }
     });
 }
 
