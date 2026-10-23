@@ -1,0 +1,56 @@
+name: Secure ZIP 9 DOCX/ODT integration
+on:
+  pull_request:
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'crates/docx/**'
+      - 'crates/formats/**'
+      - '.github/workflows/secure-zip9-integration.yml'
+  push:
+    branches:
+      - security/fix-rustsec-2026-0382-20261021
+    paths:
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'crates/docx/**'
+      - 'crates/formats/**'
+      - '.github/workflows/secure-zip9-integration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  protected-docx-odt-roundtrip:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249
+        with:
+          toolchain: stable
+          components: rustfmt
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+      - name: Formatting
+        run: cargo fmt --all -- --check
+      - name: Require patched archive and TLS dependencies in lockfile
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import tomllib
+          from pathlib import Path
+          versions={p['name']:p['version'] for p in tomllib.loads(Path('Cargo.lock').read_text())['package']}
+          assert versions['zip'].split('.')[0] == '9',versions.get('zip')
+          assert versions['rustls-webpki']=='0.103.16',versions.get('rustls-webpki')
+          print('ZIP_9_AND_RUSTSEC_WEBPKI=PASS')
+          PY
+      - name: Compile and test real DOCX ODT and spreadsheet import with ZIP 9
+        run: cargo test --locked -p wordcraft-docx -p wordcraft-formats
+      - name: Prevent release qualification from test identities
+        shell: bash
+        run: echo 'ZIP9_PACKAGE_TESTS=PASS; QUALIFIED_EIDAS=NOT_TESTED; REAL_BTRUST_USB=NOT_TESTED'
