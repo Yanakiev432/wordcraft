@@ -2057,7 +2057,7 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
         let accent = ui.visuals().selection.bg_fill;
         let neutral = ui.visuals().widgets.inactive.bg_fill;
         let ready = !app.session.dirty && app.session.path.is_some();
-        let sign = egui::Button::new(egui::RichText::new("✒  Sign\n    B-Trust").strong().size(13.0))
+        let sign = egui::Button::new(egui::RichText::new(tl!("Sign\nB-Trust")).strong().size(13.0))
             .fill(accent.gamma_multiply(0.20))
             .stroke(egui::Stroke::new(1.0, accent.gamma_multiply(0.65)))
             .corner_radius(9.0)
@@ -2065,7 +2065,7 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
         if ui
             .add_enabled(ready, sign)
             .on_disabled_hover_text("Save the document before signing")
-            .on_hover_text("Choose a Windows certificate, draw a rectangle, then sign a DOCX copy")
+            .on_hover_text(tl!("Choose a Windows certificate, review signing options, then sign a separate DOCX copy"))
             .clicked()
         {
             if let Some(path) = app.session.path.as_deref() {
@@ -2074,7 +2074,7 @@ fn review(app: &mut WordApp, ui: &mut Ui) {
                 }
             }
         }
-        let verify = egui::Button::new(egui::RichText::new("✓  Verify\n    signature").strong().size(13.0))
+        let verify = egui::Button::new(egui::RichText::new(tl!("✓  Verify\n    signature")).strong().size(13.0))
             .fill(neutral)
             .stroke(egui::Stroke::new(1.0, accent.gamma_multiply(0.45)))
             .corner_radius(9.0)
