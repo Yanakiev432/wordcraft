@@ -2696,3 +2696,7 @@ preview	Title	Örnek
 	Type a size in any unit, such as 5 cm or 300 px. The other side follows, so the picture keeps its proportions.	Herhangi bir birimde bir boyut yazın, örneğin 5 cm veya 300 px. Diğer kenar da buna uyar, böylece resim oranlarını korur.
 
 	Import…	İçe aktar…
+	Digital signatures	Dijital imzalar
+	Sign\nB-Trust	İmzala\nB-Trust
+	✓  Verify\n    signature	✓  İmzayı\n    doğrula
+	Choose a Windows certificate, review signing options, then sign a separate DOCX copy	Bir Windows sertifikası seçin, imza seçeneklerini gözden geçirin ve ayrı bir DOCX kopyasını imzalayın
