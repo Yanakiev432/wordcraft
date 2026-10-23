@@ -2739,3 +2739,7 @@ template	Letter	Thư
 	Type a size in any unit, such as 5 cm or 300 px. The other side follows, so the picture keeps its proportions.	Nhập kích thước theo đơn vị bất kỳ, ví dụ 5 cm hoặc 300 px. Cạnh còn lại thay đổi theo, nên ảnh giữ nguyên tỷ lệ.
 
 	Import…	Nhập…
+	Digital signatures	Chữ ký số
+	Sign\nB-Trust	Ký\nB-Trust
+	✓  Verify\n    signature	✓  Xác minh\n    chữ ký
+	Choose a Windows certificate, review signing options, then sign a separate DOCX copy	Chọn chứng chỉ Windows, xem lại tùy chọn ký rồi ký một bản sao DOCX riêng
