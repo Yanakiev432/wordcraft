@@ -2697,3 +2697,7 @@ preview	Title	Пример
 	Type a size in any unit, such as 5 cm or 300 px. The other side follows, so the picture keeps its proportions.	Введите размер в любых единицах, например 5 cm или 300 px. Другая сторона изменится вместе с ней, и рисунок сохранит пропорции.
 
 	Import…	Импорт…
+	Digital signatures	Цифровые подписи
+	Sign\nB-Trust	Подписать\nB-Trust
+	✓  Verify\n    signature	✓  Проверить\n    подпись
+	Choose a Windows certificate, review signing options, then sign a separate DOCX copy	Выберите сертификат Windows, проверьте параметры подписи и подпишите отдельную копию DOCX
