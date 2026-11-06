@@ -113,6 +113,28 @@ pub(super) fn review(app: &mut WordApp, ui: &mut Ui) {
         big(ui, app, "blockAuthors", "Block\nAuthors", "review.blockAuthors", json!({}), false);
         big(ui, app, "restrict", "Restrict\nEditing", "review.restrict", json!({}), false);
     });
+    #[cfg(target_os = "windows")]
+    group(ui, "Digital Signatures", None, app, |ui, app| {
+        ui.vertical(|ui| {
+            if ui.add_enabled(app.has_document(), egui::Button::new("Sign DOCX")).clicked() {
+                let current = app.session.path.clone();
+                let answer = match current {
+                    Some(path) if !app.session.dirty => app.office_sign.begin(&path),
+                    Some(_) => Err("Save all edits before signing.".to_owned()),
+                    None => Err("Save as DOCX before signing.".to_owned()),
+                };
+                if let Err(error) = answer { app.status(error); }
+            }
+            if ui.add_enabled(app.has_document(), egui::Button::new("Verify DOCX")).clicked() {
+                let current = app.session.path.clone();
+                let answer = match current {
+                    Some(path) => app.office_sign.verify(&path),
+                    None => Err("Choose a saved DOCX before verifying.".to_owned()),
+                };
+                if let Err(error) = answer { app.status(error); }
+            }
+        });
+    });
     group(ui, "Ink", None, app, |ui, app| {
         let hidden = app.session.view.hide_ink;
         big_toggle(ui, app, "hideInk", "Hide\nInk", "review.hideInk", hidden);
