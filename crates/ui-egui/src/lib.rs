@@ -65,6 +65,8 @@ pub mod printing;
 pub mod proofing_pane;
 pub mod read_aloud;
 pub mod ribbon;
+#[cfg(target_os = "windows")]
+pub mod office_sign_ui;
 pub mod ribbon_fit;
 pub mod rtl;
 pub mod ruler_tabs;
@@ -466,6 +468,8 @@ fn migrate_units(v: &mut Value) {
 
 /// The application.
 pub struct WordApp {
+    #[cfg(target_os = "windows")]
+    pub office_sign: office_sign_ui::OfficeSignUi,
     pub session: Session,
     pub ui: UiState,
     pub services: Services,
