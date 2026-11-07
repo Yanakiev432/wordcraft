@@ -524,8 +524,14 @@ fn main() -> eframe::Result {
             let mut session = Session::new(doc);
             session.system_region = region;
             let mut app = WordApp::new(session, services(file_dialog, &cc.egui_ctx));
-            app.set_startup_update_check(true);
+            // QA-only opt-in: avoid offering a vendor self-update over an isolated signing build.
+            let signing_qa = std::env::var("CRAFT_SIGNING_QA").as_deref() == Ok("1");
+            app.set_startup_update_check(!signing_qa);
             load_prefs(&mut app);
+            if signing_qa {
+                app.ui.tab = "Review".into();
+                app.ui.backstage = false;
+            }
             load_user_dictionary(&mut app);
             // Language packs from the suite's font store; an Install click is the person's own.
             wordcraft_engine::packs::use_font_store(true);
