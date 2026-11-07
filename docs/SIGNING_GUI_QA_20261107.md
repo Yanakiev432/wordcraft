@@ -54,3 +54,9 @@ Windows QA logs and receipts: `C:\Users\User\Documents\CraftUpdates\Signing-Reba
 - The OPC CLI regression tests pass with disposable software test certificates; **B-Trust hardware QES, certification chain/revocation, verified timestamp, Word/Excel product parity and trusted MSI remain NO-GO.**
 
 No production release, installed MSI replacement, merge to main, or qualified-signature declaration has occurred.
+
+## Self-contained B-Trust test fixture
+
+The owner-only GitHub Draft Pre-release with tag `qa-signing-gui-20261107` contains the QA ZIP with `QES_QA_UNSIGNED_ORIGINAL.docx` and `Run-WordCraft-BTrust-QA.cmd`. The source document was converted from a harmless anonymous TXT/CSV using the app's own CLI, parsed successfully and scanned for common personal identifiers. The launcher opens it with `CRAFT_SIGNING_QA=1` and Review selected; it **does not sign** or choose a certificate automatically. Any future hardware signing requires the owner's explicit certificate choice and provider-managed PIN input.
+
+Most recent uploaded ZIP SHA-256: `87f3b6a8c98e1fcaa3fbbac16b265e4643694fdd82b363227f453456e2055faf`. Its Authenticode signatures are **self-signed QA only**, with no publicly trusted release identity. The draft release is not published and `main` remains untouched.
