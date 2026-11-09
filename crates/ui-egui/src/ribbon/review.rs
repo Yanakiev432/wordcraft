@@ -113,19 +113,30 @@ pub(super) fn review(app: &mut WordApp, ui: &mut Ui) {
         big(ui, app, "blockAuthors", "Block\nAuthors", "review.blockAuthors", json!({}), false);
         big(ui, app, "restrict", "Restrict\nEditing", "review.restrict", json!({}), false);
     });
+    // Native ribbon-sized controls, not generic egui buttons. The workflow is unchanged.
     #[cfg(target_os = "windows")]
-    group(ui, "Digital Signatures", None, app, |ui, app| {
-        ui.vertical(|ui| {
-            if ui.add_enabled(app.has_document(), egui::Button::new("Sign DOCX")).clicked() {
+    group(ui, "Signatures", None, app, |ui, app| {
+        stack(ui, |ui| {
+            ui.add_space(7.0);
+            let can_verify = app.has_document()
+                && app.session.path.as_deref().is_some_and(is_saved_docx)
+                && !app.office_sign.busy();
+            let can_sign = can_verify && !app.session.dirty;
+            if office_signature_button(
+                ui, "signature", "Sign", "Sign the saved DOCX as a new copy",
+                can_sign,
+            ).clicked() && can_sign {
                 let current = app.session.path.clone();
                 let answer = match current {
-                    Some(path) if !app.session.dirty => app.office_sign.begin(&path),
-                    Some(_) => Err("Save all edits before signing.".to_owned()),
+                    Some(path) => app.office_sign.begin(&path),
                     None => Err("Save as DOCX before signing.".to_owned()),
                 };
                 if let Err(error) = answer { app.status(error); }
             }
-            if ui.add_enabled(app.has_document(), egui::Button::new("Verify DOCX")).clicked() {
+            if office_signature_button(
+                ui, "accept", "Verify", "Verify the DOCX signature integrity",
+                can_verify,
+            ).clicked() && can_verify {
                 let current = app.session.path.clone();
                 let answer = match current {
                     Some(path) => app.office_sign.verify(&path),
@@ -139,6 +150,61 @@ pub(super) fn review(app: &mut WordApp, ui: &mut Ui) {
         let hidden = app.session.view.hide_ink;
         big_toggle(ui, app, "hideInk", "Hide\nInk", "review.hideInk", hidden);
     });
+}
+
+/// Ribbon control matching WordCraft's 22px icon-and-label stack, including compact
+/// hover/pressed states, theme colors, accessibility label and disabled treatment.
+#[cfg(target_os = "windows")]
+fn office_signature_button(
+    ui: &mut Ui,
+    icon: &str,
+    label: &str,
+    tip: &str,
+    enabled: bool,
+) -> egui::Response {
+    let t = crate::theme::Tokens::get(ui.ctx());
+    let font = crate::theme::regular(11.5);
+    let text_width = ui.ctx().fonts_mut(|f| {
+        f.layout_no_wrap(label.to_owned(), font.clone(), t.text).size().x
+    });
+    let width = (text_width + 32.0).max(82.0);
+    let (rect, response) = ui.allocate_exact_size(
+        egui::vec2(width, 22.0),
+        egui::Sense::click(),
+    );
+    let active = enabled && ui.is_enabled();
+    if active && response.is_pointer_button_down_on() {
+        ui.painter().rect_filled(rect, 4.0, t.pressed);
+    } else if active && response.hovered() {
+        ui.painter().rect_filled(rect, 4.0, t.hover);
+    }
+    let foreground = if active { t.icon } else { t.text_disabled };
+    let accent = if active { t.accent } else { t.text_disabled };
+    let icon_rect = egui::Rect::from_center_size(
+        egui::pos2(rect.left() + 12.0, rect.center().y),
+        egui::vec2(17.0, 17.0),
+    );
+    crate::icons::paint(ui.painter(), icon_rect, icon, foreground, accent);
+    ui.painter().text(
+        egui::pos2(rect.left() + 25.0, rect.center().y),
+        egui::Align2::LEFT_CENTER,
+        label,
+        font,
+        if active { t.text } else { t.text_disabled },
+    );
+    response.widget_info(|| egui::WidgetInfo::labeled(
+        egui::Role::Button, active, label,
+    ));
+    response.on_hover_text(if active { tip } else {
+        "Save the DOCX and finish any active signature operation first"
+    })
+}
+
+#[cfg(target_os = "windows")]
+fn is_saved_docx(path: &std::path::Path) -> bool {
+    path.is_file() && path.extension()
+        .and_then(|ext| ext.to_str())
+        .is_some_and(|ext| ext.eq_ignore_ascii_case("docx"))
 }
 
 /// Developer › Controls: content controls.
