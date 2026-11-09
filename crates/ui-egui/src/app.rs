@@ -82,6 +82,8 @@ impl WordApp {
             alt_modifier_seen,
         } = window_ui::WindowUi::new(session.document_id());
         WordApp {
+            #[cfg(target_os = "windows")]
+            office_sign: crate::office_sign_ui::OfficeSignUi::new("docx"),
             session,
             ui: UiState {
                 tab,

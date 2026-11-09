@@ -95,6 +95,8 @@ impl WordApp {
         let moved = |app: &WordApp| app.windows.shown() != window;
         content_controls::popup(self, ctx);
         dialogs::show(self, ctx);
+        #[cfg(target_os = "windows")]
+        self.office_sign.show(ctx, self.session.path.as_deref(), self.session.dirty);
         if moved(self) {
             return;
         }

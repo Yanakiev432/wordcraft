@@ -161,6 +161,8 @@ impl WordApp {
         let WordApp {
             // App-wide.
             session: _,
+            #[cfg(target_os = "windows")]
+            office_sign: _,
             services: _,
             printing: _,
             print_feedback_seen: _,

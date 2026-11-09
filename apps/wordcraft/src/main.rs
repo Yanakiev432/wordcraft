@@ -564,7 +564,7 @@ fn main() -> eframe::Result {
             let mut session = Session::new(doc);
             session.system_region = region;
             let mut app = WordApp::new(session, services(file_dialog, &cc.egui_ctx));
-            app.set_startup_update_check(true);
+            app.set_startup_update_check(std::env::var("CRAFT_SIGNING_QA").as_deref() != Ok("1"));
             load_prefs(&mut app);
             load_user_dictionary(&mut app);
             // Language packs from the suite's font store; an Install click is the person's own.
