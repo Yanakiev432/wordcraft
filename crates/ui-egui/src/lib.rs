@@ -67,6 +67,8 @@ pub mod read_aloud;
 pub mod ribbon;
 #[cfg(target_os = "windows")]
 pub mod office_sign_ui;
+#[cfg(target_os = "windows")]
+pub mod signer_extension;
 pub mod ribbon_fit;
 pub mod rtl;
 pub mod ruler_tabs;
@@ -140,7 +142,7 @@ struct AwaitingSave {
     rev: u64,
 }
 
-/// File › Options › Advanced › Linux display server (#2184, `ui.displayServer`): how the desktop
+/// File ΓÇ║ Options ΓÇ║ Advanced ΓÇ║ Linux display server (#2184, `ui.displayServer`): how the desktop
 /// app connects on Linux and the BSDs. It's read before the window opens, so a change applies at
 /// the next launch; `WORDCRAFT_WAYLAND` overrides it. An unknown saved value reads as Automatic.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -181,9 +183,9 @@ impl DisplayServer {
 }
 
 /// What the status bar's live count shows (#2797): words (the default, as Word's status bar
-/// counts), characters with spaces, or characters without spaces — the same three the Word Count
-/// dialog reports, worded the same way. Right-click the count in the status bar, or File ›
-/// Options › Display, to choose; kept between runs in `ui.json`.
+/// counts), characters with spaces, or characters without spaces ΓÇö the same three the Word Count
+/// dialog reports, worded the same way. Right-click the count in the status bar, or File ΓÇ║
+/// Options ΓÇ║ Display, to choose; kept between runs in `ui.json`.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(from = "String", into = "String")]
 pub enum StatusCount {
@@ -285,18 +287,18 @@ pub struct UiState {
     pub tab: String,
     pub backstage: bool,
     pub backstage_page: String,
-    /// File › Print settings (#641); not saved.
+    /// File ΓÇ║ Print settings (#641); not saved.
     #[serde(skip)]
     pub print: print_page::PrintSettings,
     pub ribbon_collapsed: bool,
     /// The Quick Access Toolbar shows in the title bar (#1945). Its menu's Hide Quick Access
     /// Toolbar takes it away; Show Quick Access Toolbar (the ribbon's right-click menu, Customize
-    /// Ribbon › Quick Access Toolbar) brings it back. Kept between runs.
+    /// Ribbon ΓÇ║ Quick Access Toolbar) brings it back. Kept between runs.
     pub quick_access_toolbar: bool,
     pub recent: Vec<String>,
     /// Symbols inserted from the Symbol dialog, most recent first (#321).
     pub recent_symbols: Vec<dialogs_insert::RecentSymbol>,
-    /// Colours picked in the Colors dialog (More Colors…), most recent first (#606).
+    /// Colours picked in the Colors dialog (More ColorsΓÇª), most recent first (#606).
     pub recent_colors: Vec<String>,
     /// Fonts applied from the font box, the mini toolbar or the Font dialog, most recent first:
     /// the Recently Used Fonts section at the top of the font list (#2068).
@@ -305,7 +307,7 @@ pub struct UiState {
     /// Interface theme: light, dark, or follow the OS appearance (#115).
     pub theme: theme::Appearance,
     /// Interface size (#475, #822): Auto (the display scale the system reports) or an absolute
-    /// size in percent. Junk saved values read as Auto; out-of-range ones are clamped to 50–300 %.
+    /// size in percent. Junk saved values read as Auto; out-of-range ones are clamped to 50ΓÇô300 %.
     #[serde(rename = "uiScale")]
     pub interface_size: theme::InterfaceSize,
     /// The interface size `ui.json` held before #822, on top of the display scale: read once to
@@ -319,7 +321,7 @@ pub struct UiState {
     #[serde(rename = "dark", skip_serializing)]
     pub(crate) legacy_dark: Option<bool>,
     pub nav_tab: String,
-    /// View › Navigation Pane: open or closed as the person left it, kept between runs (#2526).
+    /// View ΓÇ║ Navigation Pane: open or closed as the person left it, kept between runs (#2526).
     /// The session owns it while running (see [`WordApp::prefs`]).
     pub nav_pane: bool,
     /// Where the Styles pane sits (#1756). The session owns it while running (see [`WordApp::prefs`]).
@@ -342,7 +344,7 @@ pub struct UiState {
     #[serde(skip)]
     pub nav_collapsed: std::collections::HashSet<wordcraft_doc::Path>,
     pub show_discord: bool,
-    /// User name (File › Options) for comments and tracked changes. `None` (no saved name) keeps
+    /// User name (File ΓÇ║ Options) for comments and tracked changes. `None` (no saved name) keeps
     /// the default; a saved empty name stays empty (#4368).
     pub author: Option<String>,
     /// Desktop: the main window's size and position, restored at the next launch.
@@ -377,12 +379,12 @@ pub struct UiState {
     /// that never turns it on is AltGr, which types characters and never opens keytips (#2388).
     #[serde(skip)]
     pub alt_modifier_seen: bool,
-    /// View › Switch Modes: show pages dark (white text on black), kept between runs. Only the
+    /// View ΓÇ║ Switch Modes: show pages dark (white text on black), kept between runs. Only the
     /// pages: the interface follows [`UiState::theme`] (#312).
     pub dark_page: bool,
-    /// File › Options › Proofing › Check spelling as you type, kept between runs (#1792).
+    /// File ΓÇ║ Options ΓÇ║ Proofing ΓÇ║ Check spelling as you type, kept between runs (#1792).
     pub check_spelling: bool,
-    /// File › Options › Advanced › Animation: the caret glides to its new place and its blink
+    /// File ΓÇ║ Options ΓÇ║ Advanced ΓÇ║ Animation: the caret glides to its new place and its blink
     /// fades, as Word's does on Windows (on, the default), or it jumps and blinks on and off
     /// (off).
     pub caret_animation: bool,
@@ -391,42 +393,42 @@ pub struct UiState {
     /// Custom ribbon tabs and groups, hidden tabs and the Quick Access Toolbar (Customize Ribbon,
     /// #379); the session owns them while running.
     pub ribbon: wordcraft_engine::RibbonLayout,
-    /// Caption labels the user added (References › Insert Caption › New Label), kept between
+    /// Caption labels the user added (References ΓÇ║ Insert Caption ΓÇ║ New Label), kept between
     /// runs like Word keeps them in its Normal template (#402).
     pub caption_labels: Vec<String>,
     /// The label of the last caption inserted, picked again next time (#3120).
     pub last_caption_label: String,
-    /// Draw › Add Pen: the pens added to the pen gallery; the session owns them while running.
+    /// Draw ΓÇ║ Add Pen: the pens added to the pen gallery; the session owns them while running.
     /// Entries that aren't pens are dropped on reading.
     #[serde(deserialize_with = "wordcraft_engine::cmd::draw::lenient_pens")]
     pub ink_pens: Vec<wordcraft_engine::cmd::draw::CustomPen>,
-    /// File › Options › General: initials for comments; empty = the user name's. The session
+    /// File ΓÇ║ Options ΓÇ║ General: initials for comments; empty = the user name's. The session
     /// owns them while running, like `author`.
     pub initials: String,
-    /// The File › Options pane last shown ([`wordcraft_engine::cmd::options::PANES`]).
+    /// The File ΓÇ║ Options pane last shown ([`wordcraft_engine::cmd::options::PANES`]).
     pub options_pane: String,
-    /// File › Options › Advanced: how many recent documents File › Home and Open list (0–50).
+    /// File ΓÇ║ Options ΓÇ║ Advanced: how many recent documents File ΓÇ║ Home and Open list (0ΓÇô50).
     pub recent_count: usize,
-    /// File › Options › General: show the mini toolbar over a selection.
+    /// File ΓÇ║ Options ΓÇ║ General: show the mini toolbar over a selection.
     pub mini_toolbar: bool,
-    /// File › Options › Advanced › Editing: moving a picture or shape snaps it to alignment
+    /// File ΓÇ║ Options ΓÇ║ Advanced ΓÇ║ Editing: moving a picture or shape snaps it to alignment
     /// guides (on by default; Alt moves freely).
     pub alignment_guides: bool,
-    /// File › Options › General: start on File › Home (Blank document, templates, Recent) when
+    /// File ΓÇ║ Options ΓÇ║ General: start on File ΓÇ║ Home (Blank document, templates, Recent) when
     /// the app opens without a document (#766); on, as in Word. See [`WordApp::start_screen`].
     pub start_screen: bool,
-    /// File › Options › Display: print the page colour (off, as in Word).
+    /// File ΓÇ║ Options ΓÇ║ Display: print the page colour (off, as in Word).
     pub print_backgrounds: bool,
-    /// File › Options › Display: update fields (dates, page numbers, SEQ…) before printing.
+    /// File ΓÇ║ Options ΓÇ║ Display: update fields (dates, page numbers, SEQΓÇª) before printing.
     pub update_fields_before_print: bool,
-    /// The custom dictionary (File › Options › Proofing, Add to Dictionary), kept between runs.
+    /// The custom dictionary (File ΓÇ║ Options ΓÇ║ Proofing, Add to Dictionary), kept between runs.
     pub dictionary: Vec<String>,
-    /// File › Options › Advanced › Linux display server (#2184): read by the desktop app before
+    /// File ΓÇ║ Options ΓÇ║ Advanced ΓÇ║ Linux display server (#2184): read by the desktop app before
     /// the window opens.
     pub display_server: DisplayServer,
     /// What the status bar's live count shows (#2797): words (the default), characters with
-    /// spaces, or characters without spaces. Right-click the count in the status bar, or File ›
-    /// Options › Display. Junk saved values read as words.
+    /// spaces, or characters without spaces. Right-click the count in the status bar, or File ΓÇ║
+    /// Options ΓÇ║ Display. Junk saved values read as words.
     pub status_count: StatusCount,
 }
 
@@ -435,9 +437,9 @@ pub struct UiState {
 /// Ribbon). Word opens on Home every launch; see [`UiState::tab`].
 pub const DEFAULT_TAB: &str = "Home";
 
-/// ⌘Q, which only the Mac sends: quit.
+/// ΓîÿQ, which only the Mac sends: quit.
 const QUIT: egui::KeyboardShortcut = egui::KeyboardShortcut::new(egui::Modifiers::MAC_CMD, egui::Key::Q);
-/// Most recent documents kept (File › Options › Advanced offers 0–50, as Word does).
+/// Most recent documents kept (File ΓÇ║ Options ΓÇ║ Advanced offers 0ΓÇô50, as Word does).
 pub const MAX_RECENT: usize = 50;
 /// Most custom dictionary words read back from `ui.json`.
 pub const MAX_DICTIONARY: usize = 10_000;
@@ -624,7 +626,7 @@ pub struct WordApp {
     /// Content control frames, check boxes and lists on the page.
     pub controls: content_controls::ControlUi,
     pub dialog: Option<dialogs::Dialog>,
-    /// The Colors dialog (More Colors…), shown above any other dialog (#606).
+    /// The Colors dialog (More ColorsΓÇª), shown above any other dialog (#606).
     pub colors: Option<colors::ColorsDialog>,
     /// The Restrict Editing pane (#412).
     pub restrict: dialogs_review::RestrictPane,
@@ -634,14 +636,14 @@ pub struct WordApp {
     pub previews: previews::Previews,
     /// Media key of the picture a pending Change Picture replaces (#147).
     pub change_picture_target: Option<String>,
-    /// Web: a recipient list was asked for (Select Recipients › Use an Existing List…), so the
+    /// Web: a recipient list was asked for (Select Recipients ΓÇ║ Use an Existing ListΓÇª), so the
     /// next text file from the picker loads as recipients instead of opening (#240).
     pub recipient_list_pending: bool,
     /// The font database's [`generation`](wordcraft_fonts::FontDb::generation) last seen: when
     /// fonts are added or removed (by any route) the font lists and the layout are refreshed.
     font_generation: u64,
-    /// A file picked for the open dialog (Templates and Add-ins › Attach…, Organizer ›
-    /// Browse…); the dialog takes it on its next frame.
+    /// A file picked for the open dialog (Templates and Add-ins ΓÇ║ AttachΓÇª, Organizer ΓÇ║
+    /// BrowseΓÇª); the dialog takes it on its next frame.
     pub(crate) dialog_pick: Option<String>,
     /// macOS: the window has no title bar; leave room for the traffic lights.
     pub integrated_titlebar: bool,
@@ -686,9 +688,9 @@ pub struct WordApp {
     /// interface; used when no embedded face has Arabic letters).
     fonts_system_arabic: bool,
     /// CJK text is (about to be) on screen in a non-CJK interface, e.g. the language names in
-    /// File ▸ Options: load the installed CJK fallback font if no embedded face covers it.
+    /// File Γû╕ Options: load the installed CJK fallback font if no embedded face covers it.
     pub(crate) want_system_cjk: bool,
-    /// Arabic text is (about to be) on screen in a non-Arabic interface, e.g. "العربية" in the
+    /// Arabic text is (about to be) on screen in a non-Arabic interface, e.g. "╪º┘ä╪╣╪▒╪¿┘è╪⌐" in the
     /// language picker or Language packs list: load an installed Arabic font when no embedded face
     /// covers it (dev builds without craft-fonts).
     pub(crate) want_system_arabic: bool,
@@ -762,7 +764,7 @@ pub struct WordApp {
     pub(crate) read_aloud_error: Option<String>,
     /// The file the document was last explicitly saved to in this session; AutoSave writes only
     /// there. A file that was merely opened isn't rewritten until the user saves it: saving drops
-    /// whatever WordCraft can't represent (content controls, charts, macros…).
+    /// whatever WordCraft can't represent (content controls, charts, macrosΓÇª).
     autosave_path: Option<std::path::PathBuf>,
     /// Web: saves the browser's picker hasn't finished yet ([`async_saves`], #1315).
     saves_in_flight: Vec<SaveInFlight>,
@@ -773,7 +775,7 @@ pub struct WordApp {
     /// The built-in file browser, when it is open, and the folder it showed last (#576).
     #[cfg(not(target_arch = "wasm32"))]
     pub(crate) file_browser: file_browser::State,
-    /// File › Info: the property field being typed in and the document revision after its last
+    /// File ΓÇ║ Info: the property field being typed in and the document revision after its last
     /// keystroke, so one visit's keystrokes make a single undo step (and anything else in
     /// between, such as an Undo, starts a new one).
     pub(crate) info_editing: Option<(&'static str, u64)>,
