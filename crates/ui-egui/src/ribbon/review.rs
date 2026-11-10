@@ -118,10 +118,13 @@ pub(super) fn review(app: &mut WordApp, ui: &mut Ui) {
     group(ui, "Signatures", None, app, |ui, app| {
         stack(ui, |ui| {
             ui.add_space(7.0);
+            // Verify must never report on-disk integrity as if unsaved
+            // edits visible in the editor had been cryptographically checked.
             let can_verify = app.has_document()
                 && app.session.path.as_deref().is_some_and(is_saved_docx)
+                && !app.session.dirty
                 && !app.office_sign.busy();
-            let can_sign = can_verify && !app.session.dirty;
+            let can_sign = can_verify;
             if office_signature_button(
                 ui, "signature", "Sign", "Sign the saved DOCX as a new copy",
                 can_sign,
@@ -139,7 +142,7 @@ pub(super) fn review(app: &mut WordApp, ui: &mut Ui) {
             ).clicked() && can_verify {
                 let current = app.session.path.clone();
                 let answer = match current {
-                    Some(path) => app.office_sign.verify(&path),
+                    Some(path) => app.office_sign.verify(&path, app.session.dirty),
                     None => Err("Choose a saved DOCX before verifying.".to_owned()),
                 };
                 if let Err(error) = answer { app.status(error); }
