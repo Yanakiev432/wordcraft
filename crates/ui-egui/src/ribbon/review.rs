@@ -147,6 +147,18 @@ pub(super) fn review(app: &mut WordApp, ui: &mut Ui) {
                 };
                 if let Err(error) = answer { app.status(error); }
             }
+            if office_signature_button(
+                ui, "accept", "Verify v2",
+                "Verify saved DOCX with owner-approved, signed Craft Signer v2 (OPC integrity only)",
+                can_verify,
+            ).clicked() && can_verify {
+                let current = app.session.path.clone();
+                let answer = match current {
+                    Some(path) => app.office_sign.verify_v2(&path, app.session.dirty),
+                    None => Err("Choose a saved DOCX before signed-module verification.".to_owned()),
+                };
+                if let Err(error) = answer { app.status(error); }
+            }
         });
     });
     group(ui, "Ink", None, app, |ui, app| {
