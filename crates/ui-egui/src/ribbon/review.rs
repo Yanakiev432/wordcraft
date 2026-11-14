@@ -284,3 +284,37 @@ pub(super) fn help(app: &mut WordApp, ui: &mut Ui) {
         big(ui, app, "macros", "Commands", "ui.dialog", json!({"name": "commands"}), false);
     });
 }
+
+#[cfg(all(test, target_os = "windows"))]
+mod signed_v2_ui_qa {
+    use super::*;
+    use egui::accesskit::Role;
+    use egui_kittest::kittest::Queryable;
+
+    #[test]
+    fn review_shows_compact_sign_verify_and_verify_v2_without_gpu() {
+        let mut app = WordApp::new(wordcraft_engine::Session::new(wordcraft_doc::Document::new()), crate::Services::default());
+        app.run("ui.tab", serde_json::json!({"tab":"Review"})).unwrap();
+        let mut harness = egui_kittest::Harness::builder()
+            .with_size(egui::vec2(2560.0, 900.0))
+            .renderer(egui_kittest::LazyRenderer::Uninitialized { textures_delta: Default::default(), builder: None })
+            .build_ui_state(
+                |ui, app: &mut WordApp| {
+                    let ctx = ui.ctx().clone();
+                    app.logic(&ctx);
+                    app.ui(ui);
+                },
+                app,
+            );
+        harness.run_steps(8);
+        for label in ["Sign", "Verify", "Verify v2"] {
+            let control = harness.query_by_role_and_label(Role::Button, label);
+            assert!(control.is_some(), "Review contains accessible {label} control");
+            let control = control.unwrap();
+            let rect = control.rect();
+            assert!(rect.width() >= 50.0 && rect.height() <= 30.0, "Review {label} uses the compact 22px ribbon row, not a large tile: {rect:?}");
+            assert!(rect.min.x >= 0.0 && rect.min.y >= 0.0, "Review {label} remains inside the viewport");
+        }
+        assert!(!harness.state().office_sign.busy(), "headless accessibility check does not start a signer");
+    }
+}
