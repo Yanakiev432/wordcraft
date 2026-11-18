@@ -26,3 +26,6 @@ sys-locale = "0.3"
 wordcraft-fonts = { workspace = true }
 image = { workspace = true }
 zip = { workspace = true }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+craft-signing-core = { version = "=0.1.0", git = "https://github.com/Yanakiev432/craft-signing-core.git", rev = "5b5c14c4e7668cf15cce128750b80a6113fc5f31" }

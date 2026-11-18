@@ -3,6 +3,7 @@
 
 mod automation_args;
 mod script;
+mod opc_signature;
 
 use std::ffi::{OsStr, OsString};
 use std::fmt;
@@ -28,6 +29,8 @@ USAGE:
                                               --strict (pdf or png output only) writes nothing and exits 3
                                               if a character can't be drawn or a picture is missing or
                                               undecodable; the report is on stderr, with one JSON line
+  wordcraft-cli opc-sign <in.docx> <new-out.docx> --thumbprint <40-hex>  Windows OPC/XMLDSig
+  wordcraft-cli opc-verify <signed.docx>      Verify Office signature integrity
   wordcraft-cli info <file>                   pages, words, paragraphs, properties (JSON)
   wordcraft-cli text <file>                   plain text
   wordcraft-cli inspect <file>                document structure (JSON)
@@ -78,7 +81,7 @@ same output on every machine.
 ";
 
 /// The subcommands, in `USAGE` order; `--help` or `-h` after any of them prints `USAGE` (#968).
-const SUBCOMMANDS: &[&str] = &["convert", "info", "text", "inspect", "render", "run", "commands", "parity", "mcp", "zotero"];
+const SUBCOMMANDS: &[&str] = &["opc-sign", "opc-verify", "convert", "info", "text", "inspect", "render", "run", "commands", "parity", "mcp", "zotero"];
 
 fn wants_help(cmd: &str, rest: &[String]) -> bool {
     SUBCOMMANDS.contains(&cmd) && rest.iter().any(|a| a == "--help" || a == "-h")
@@ -552,6 +555,10 @@ fn run<S: AsRef<OsStr>>(args: &[S]) -> Result<(), Failure> {
         return write_stdout(|o| write!(o, "{USAGE}"));
     }
     match cmd {
+        "opc-sign" | "opc-verify" => {
+            let report = opc_signature::execute(cmd, &rest, "docx")?;
+            write_stdout(|o| writeln!(o, "{report}"))
+        }
         "convert" => run_convert(&rest, open),
         "info" => {
             validate_options("info", &rest, PASSWORD_OPTIONS)?;
